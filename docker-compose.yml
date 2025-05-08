@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: 
+      context: ./draganddrop/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: draganddrop_backend
+    # entrypoint: ['bash', entrypoint.sh]
+    networks:
+      - draganddrop_network
+  
+  frontend:
+    build: 
+      context: ./draganddrop/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: draganddrop_frontend
+    networks:
+      - draganddrop_network
+    environment:
+      - REACT_APP_API_URL=http://backend:8000
+    # depends_on:
+    #   - backend
+
+
+networks:
+  draganddrop_network:
+    driver: bridge
+    
+    
