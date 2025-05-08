@@ -15,6 +15,9 @@ function App() {
 
   const appRef = useRef(null);
 
+  // Используем переменную окружения для URL API, с запасным значением для локальной разработки
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
   const handleFiles = async (files) => {
     if (files.length === 0) return;
     setLoading(true);
@@ -26,7 +29,7 @@ function App() {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      const response = await axios.post('http://localhost:8000/api/upload', formData, {
+      const response = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setResponseData(response.data.files); // Бэкенд теперь возвращает { files: [...] }
@@ -37,9 +40,8 @@ function App() {
         if (typeof err.response.data.detail === 'string') {
           setError(err.response.data.detail);
         } else if (err.response.data.msg) { // Запасной вариант, если вдруг старый формат где-то остался
-             setError(`Error: ${err.response.data.error_type || 'UnknownError'} - ${err.response.data.msg}`);
-        }
-        else {
+          setError(`Error: ${err.response.data.error_type || 'UnknownError'} - ${err.response.data.msg}`);
+        } else {
           // Если detail не строка, пытаемся показать как есть или общую ошибку
           setError(JSON.stringify(err.response.data) || 'An error occurred on the server.');
         }
@@ -102,9 +104,9 @@ function App() {
       .join('\n\n');
 
     if (!textToCopy) {
-        setError("No text content available to copy.");
-        setCopyState('idle');
-        return;
+      setError("No text content available to copy.");
+      setCopyState('idle');
+      return;
     }
 
     navigator.clipboard.writeText(textToCopy)
