@@ -1,0 +1,528 @@
+/* Darker, more minimalistic palette */
+:root {
+  --background-dark: #0a0a0a; /* Almost black - THIS IS THE GAP BACKGROUND */
+  --block-background: #1a1a1a; /* Background for EACH distinct block */
+  --accent-color-subtle: #3a3a3a; /* Dark grey for borders/subtle accents */
+  --accent-color-button: #4CAF50; /* Green for success button */
+  --text-color: #e0e0e0; /* Light grey for readability */
+  --error-color: #ff6666; /* Error red */
+  --code-background: #2b2b2b; /* Background for code blocks */
+  --file-item-background: #252525; /* Background for file items */
+  --block-padding: 30px; /* Padding INSIDE each distinct block */
+  --block-padding-narrow: 20px; /* Reduced padding for upload section after results */
+  --block-gap: 35px; /* Slightly increased gap */
+  --upload-max-width: 680px; /* Slightly narrower upload for more contrast */
+  --results-max-width: 1100px; /* WIDER results block */
+  --super-smooth-duration: 0.8s; /* EVEN SMOOTHER base duration */
+  --super-smooth-easing: cubic-bezier(0.4, 0, 0.2, 1); /* Common "material design" easing */
+}
+
+
+/* Basic Reset */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  background-color: var(--background-dark);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  box-sizing: border-box;
+  overflow-y: auto; /* Keep this for page scroll */
+  position: relative; /* For positioning scroll-to-top relative to App */
+  transition: align-items var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+.App.has-results-active {
+    align-items: flex-start;
+}
+
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--block-gap);
+}
+
+.upload-section,
+.results-block {
+  background-color: var(--block-background);
+  padding: var(--block-padding);
+  border-radius: 14px; /* Slightly more rounded */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65); /* More pronounced shadow */
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+.upload-section {
+  max-width: var(--upload-max-width);
+  text-align: center;
+  transition: transform var(--super-smooth-duration) var(--super-smooth-easing),
+              padding var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+.upload-section.has-results {
+    padding-top: var(--block-padding-narrow);
+    padding-bottom: var(--block-padding-narrow);
+}
+.upload-section.has-results h1 {
+    font-size: 2.1rem;
+    margin-bottom: 18px;
+    transition: font-size var(--super-smooth-duration) var(--super-smooth-easing),
+                margin-bottom var(--super-smooth-duration) var(--super-smooth-easing);
+}
+.upload-section.has-results .dropzone {
+    padding: 30px;
+    transition: padding var(--super-smooth-duration) var(--super-smooth-easing);
+}
+.upload-section.has-results .dropzone p {
+    font-size: 1.1rem;
+    transition: font-size var(--super-smooth-duration) var(--super-smooth-easing);
+}
+.upload-section.has-results .paste-instruction {
+    font-size: 0.9rem;
+    margin-top: 12px;
+    transition: font-size var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+
+h1 {
+  font-size: 2.8rem;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: var(--text-color);
+  font-weight: 700;
+  transition: font-size var(--super-smooth-duration) var(--super-smooth-easing),
+              margin-bottom var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+h2 {
+    font-size: 2rem;
+    margin: 0;
+    color: var(--text-color);
+}
+
+h3.file-name {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    text-align: left;
+    border-bottom: 1px solid var(--accent-color-subtle);
+    padding-bottom: 10px;
+    font-weight: 400;
+}
+.file-name .file-type {
+    font-size: 0.8em;
+    color: #aaa;
+    font-weight: normal;
+    margin-left: 8px;
+}
+
+.dropzone {
+  border: 3px dashed var(--accent-color-subtle);
+  border-radius: 10px;
+  padding: 50px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease,
+              padding var(--super-smooth-duration) var(--super-smooth-easing);
+  margin-bottom: 20px;
+}
+.dropzone p {
+    font-size: 1.3rem;
+    margin: 0;
+    color: var(--text-color);
+    transition: font-size var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+.dropzone:hover {
+    border-color: var(--text-color);
+    transform: translateY(-5px);
+}
+
+.dropzone.active {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-color);
+  transform: scale(1.02);
+}
+
+
+.paste-instruction {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 0;
+    transition: font-size var(--super-smooth-duration) var(--super-smooth-easing);
+}
+
+
+.results-block {
+  max-width: var(--results-max-width);
+  text-align: left;
+  opacity: 0;
+  animation: fadeInSlideUp var(--super-smooth-duration) var(--super-smooth-easing) forwards;
+  animation-delay: 0.35s; /* Slightly more delay to feel more graceful */
+}
+
+@keyframes fadeInSlideUp {
+  from { opacity: 0; transform: translateY(35px); } /* More initial Y offset for smoother feel */
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+.loading,
+.error-message {
+    font-size: 1.2rem;
+    margin-top: 0; /* Handled by results-block padding */
+    margin-bottom: 20px; /* Space below loading/error message */
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.loading {
+    color: var(--text-color);
+    background-color: rgba(58, 58, 58, 0.2); /* Subtle background for loading */
+    animation: pulse 1.8s infinite var(--super-smooth-easing); /* Slower, smoother pulse */
+}
+.error-message {
+    color: var(--error-color);
+    background-color: rgba(255, 102, 102, 0.1);
+    border: 1px solid var(--error-color);
+    font-weight: bold;
+    white-space: pre-wrap; /* Allow error messages to wrap */
+    word-break: break-word; /* Break long words if necessary */
+}
+
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.35; } /* Even softer pulse */
+    100% { opacity: 1; }
+}
+
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.results-header h2 {
+    margin: 0;
+    flex-grow: 1;
+}
+
+
+.file-list {
+  margin-top: 0;
+}
+
+@keyframes fadeInSlideUpItem {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.file-item {
+  margin-bottom: 30px;
+  background-color: var(--file-item-background);
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: fadeInSlideUpItem 0.7s var(--super-smooth-easing) forwards;
+  opacity: 0;
+  text-align: left;
+  overflow-x: hidden;
+}
+
+.file-item:last-child {
+    margin-bottom: 0;
+}
+
+.binary-file-notice, .empty-file-notice {
+    padding: 20px;
+    background-color: rgba(var(--accent-color-subtle), 0.1);
+    border-radius: 5px;
+    color: #ccc;
+    font-style: italic;
+}
+.binary-file-notice span {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #bbb;
+}
+
+
+/* Stagger file item animations */
+.file-item:nth-child(1) { animation-delay: 0.1s; } /* Relative to results-block animation finish */
+.file-item:nth-child(2) { animation-delay: 0.2s; }
+.file-item:nth-child(3) { animation-delay: 0.3s; }
+.file-item:nth-child(4) { animation-delay: 0.4s; }
+.file-item:nth-child(5) { animation-delay: 0.5s; }
+
+
+.file-item pre {
+  background-color: var(--code-background) !important;
+  padding: 20px !important;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.file-item pre code > span.linenumber {
+    padding-right: 15px !important;
+}
+
+
+button {
+  background-color: var(--accent-color-subtle);
+  color: var(--text-color);
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s var(--super-smooth-easing),
+              transform 0.2s var(--super-smooth-easing),
+              box-shadow 0.2s var(--super-smooth-easing);
+  font-weight: bold;
+  min-width: 180px;
+  text-align: center;
+}
+
+button:hover:not(:disabled) {
+  background-color: #4a4a4a;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+button.copying {
+    background-color: var(--accent-color-subtle);
+    color: var(--text-color);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+button.success {
+    background-color: var(--accent-color-button);
+    color: white;
+    font-weight: bold;
+    animation: pulseGreen 0.7s var(--super-smooth-easing) 2;
+}
+
+@keyframes pulseGreen {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); background-color: #66BB6A; }
+    100% { transform: scale(1); }
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Scroll to Top Panel - RECTANGULAR */
+.scroll-to-top-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0; /* Stretch full height */
+    width: 85px; /* Width of the panel, можно настроить */
+    background-color: rgba(26, 26, 26, 0.15); /* Очень слабая начальная прозрачность */
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    align-items: center; /* Центрирование по горизонтали */
+    justify-content: center; /* Центрирование по вертикали */
+    flex-direction: column; /* Расположить текст и стрелку друг под другом */
+    transition: opacity var(--super-smooth-duration) var(--super-smooth-easing),
+                visibility var(--super-smooth-duration) var(--super-smooth-easing),
+                background-color 0.3s var(--super-smooth-easing);
+    z-index: 1000;
+    padding: 10px 0; /* Небольшой отступ сверху и снизу для контента */
+    box-sizing: border-box;
+}
+
+.scroll-to-top-panel.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-to-top-panel:hover {
+    background-color: rgba(42, 42, 74, 0.6); /* Более заметно при наведении */
+}
+
+.scroll-to-top-panel .scroll-to-top-text {
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0; /* Скрыт по умолчанию */
+    transition: opacity 0.3s var(--super-smooth-easing) 0.1s; /* Плавное появление с небольшой задержкой */
+    text-align: center;
+    margin-bottom: 8px; /* Отступ между текстом и стрелкой */
+}
+
+.scroll-to-top-panel:hover .scroll-to-top-text {
+    opacity: 1; /* Показать текст при наведении на панель */
+}
+
+.scroll-to-top-panel .scroll-to-top-arrow {
+    font-size: 24px;
+    color: var(--text-color);
+    line-height: 1; /* Убираем лишнюю высоту строки для стрелки */
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .App {
+    padding: 20px 10px;
+  }
+
+  :root { /* Override root variables for smaller screens */
+    --block-padding: 20px;
+    --block-padding-narrow: 15px;
+    --block-gap: 20px;
+    --upload-max-width: 100%;
+    --results-max-width: 100%;
+  }
+
+
+  .container {
+    gap: var(--block-gap);
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+  .upload-section.has-results h1 {
+    font-size: 1.8rem;
+  }
+
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .dropzone {
+    padding: 30px;
+  }
+  .upload-section.has-results .dropzone {
+    padding: 25px;
+  }
+  .upload-section.has-results .dropzone p {
+      font-size: 1.05rem;
+  }
+
+
+  .dropzone p {
+    font-size: 1.1rem;
+  }
+
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .results-header button {
+        min-width: auto;
+        width: 100%;
+    }
+
+
+  .file-item {
+    padding: 15px;
+  }
+
+  h3.file-name {
+      font-size: 1.2rem;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 140px;
+  }
+
+  .scroll-to-top-panel {
+    width: 35px;
+  }
+  .scroll-to-top-panel .scroll-to-top-text {
+    font-size: 11px;
+  }
+  .scroll-to-top-panel .scroll-to-top-arrow {
+      font-size: 18px;
+  }
+
+}
+
+/* Even smaller screens */
+@media (max-width: 480px) {
+     h1 {
+        font-size: 1.8rem;
+     }
+    .upload-section.has-results h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+    .dropzone {
+        padding: 20px;
+    }
+    .upload-section.has-results .dropzone {
+        padding: 20px;
+    }
+
+    .dropzone p {
+        font-size: 1rem;
+    }
+     .upload-section.has-results .dropzone p {
+      font-size: 0.95rem;
+    }
+    .upload-section.has-results .paste-instruction {
+        font-size: 0.85rem;
+    }
+
+
+    .file-item {
+        padding: 10px;
+    }
+    .scroll-to-top-panel {
+        width: 30px;
+    }
+    .scroll-to-top-panel .scroll-to-top-text {
+        display: none; /* Можно совсем скрыть текст на очень маленьких экранах */
+    }
+    .scroll-to-top-panel .scroll-to-top-arrow {
+      font-size: 16px;
+  }
+}
