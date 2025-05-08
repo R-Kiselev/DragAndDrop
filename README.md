@@ -1,14 +1,14 @@
-# File Content Extractor
+# Drag&Drop
 
 ## About This Project
 
-File Content Extractor is a simple web application that allows users to upload files and view their text-based content directly in the browser. It's particularly useful for quickly inspecting configuration files, scripts, or any text-based documents without needing to download them or open them in a separate application.
+Drag&Drop is a simple web application that allows users to upload files and view their text-based content directly in the browser. It's particularly useful for quickly inspecting configuration files, scripts, or any text-based documents without needing to download them or open them in a separate application.
 
 The application also provides a feature to copy all extracted text content to the clipboard for easy sharing or use elsewhere. For binary files, it indicates that the content cannot be displayed as text.
 
 ## Features
 
-*   **File Upload:** Users can drag and drop files or use a file selector to upload one or more files.
+*   **File Upload:** Users can drag and drop files or use a file selector to upload one or more files or just paste files (Ctrl+V).
 *   **Content Display:**
     *   Text-based files (e.g., `.txt`, `.js`, `.py`, `.json`, `.md`, `.html`, `.css`, etc.) have their content displayed.
     *   Syntax highlighting is provided for common code file types.
