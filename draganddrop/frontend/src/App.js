@@ -3,6 +3,10 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { darcula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+// Импортируй свой SVG как React-компонент
+import { ReactComponent as MyCustomLogo } from './my-custom-logo.svg'; // Убедись, что путь и имя верны
+
 import './App.css';
 
 function App() {
@@ -95,7 +99,7 @@ function App() {
   useEffect(() => {
     const pasteHandler = (event) => {
       const items = event.clipboardData.items;
-      const filesToUpload = []; // Используем новое имя переменной, чтобы избежать конфликта
+      const filesToUpload = [];
       for (let i = 0; i < items.length; i++) {
         if (items[i].kind === 'file') {
           const file = items[i].getAsFile();
@@ -106,7 +110,7 @@ function App() {
     };
     window.addEventListener('paste', pasteHandler);
     return () => window.removeEventListener('paste', pasteHandler);
-  }, [handleFiles]); // Добавляем handleFiles в массив зависимостей
+  }, [handleFiles]);
 
   const copyToClipboard = () => {
     if (copyState === 'copying') return;
@@ -136,7 +140,7 @@ function App() {
         setCopyState('success');
         setTimeout(() => setCopyState('idle'), 2000);
       })
-      .catch((clipboardErr) => { // Используем другое имя для ошибки
+      .catch((clipboardErr) => {
         const detailedErrorMessageText = `Failed to copy content to clipboard. Error: ${clipboardErr.name} - ${clipboardErr.message}`;
         console.error('Error using navigator.clipboard.writeText:', clipboardErr);
         setError(detailedErrorMessageText);
@@ -198,8 +202,13 @@ function App() {
     <div ref={appRef} className={`App ${appAlignedTop ? 'has-results-active' : ''}`}>
       <div className="container">
         <div className={`upload-section ${showStatusOrResults ? 'has-results' : ''}`}>
-          <h1>Text Extractor</h1> {/* ИЗМЕНЕННЫЙ ЗАГОЛОВОК */}
-          <p className="app-description"> {/* ДОБАВЛЕННОЕ ОПИСАНИЕ */}
+          {/* Обернем логотип в div для добавления фона */}
+          <div className="logo-container">
+            <MyCustomLogo className="app-logo" />
+          </div>
+
+          <h1>Text Extractor</h1>
+          <p className="app-description">
             Easily extract text from multiple files. Drag & drop or select your files,
             and get the content displayed in a convenient, readable format.
           </p>
