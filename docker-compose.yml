@@ -18,7 +18,7 @@ services:
     networks:
       - draganddrop_network
     env_file:
-      - ./draganddrop/frontend/.env
+      - .env
     depends_on:
       - backend
     restart: unless-stopped
