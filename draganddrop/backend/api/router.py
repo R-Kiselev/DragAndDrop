@@ -9,6 +9,7 @@ files = APIRouter()
 @files.post("/upload")
 async def upload_files(files: list[UploadFile]):
     result = []
+    failed_result = []
 
     for file in files:
         try:
@@ -20,12 +21,19 @@ async def upload_files(files: list[UploadFile]):
                 "content": content.decode("utf-8"),
             }
 
-            result.append(entry)
-            
+            result.append(entry)       
         except UnicodeDecodeError:
-            raise BadRequestError(
-                detail=f"File {file.filename} is not a valid UTF-8 encoded text file."
-            )
+            # raise BadRequestError(
+            #     detail=f"File {file.filename} is not a valid UTF-8 encoded text file."
+            # )
+            if not file.filename.endswith(".pyc") and not file.filename.endswith(".pyo"):
+                failed_result.append(
+                    {
+                        "filename": file.filename,
+                        "content": "File is not a valid UTF-8 encoded text file.\
+                            Will add this functionality later.",
+                    }
+                )
         except RuntimeError:
             raise BadRequestError(
                 detail=f"File {file.filename} is too large to process."
@@ -42,7 +50,8 @@ async def upload_files(files: list[UploadFile]):
             raise BadRequestError(
                 detail=f"Failed to process file {file.filename}: {str(e)}"
             )
-
+    
+    result.extend(failed_result)
     response = JSONResponse(
         content={"files": result},
         status_code=200,
