@@ -49,7 +49,7 @@ services:
       - ./nginx/ssl/letsencrypt:/etc/letsencrypt:rw
       - ./nginx/ssl/certbot_www:/var/www/certbot:rw
     # Команда для автоматического обновления. Запускать вручную для первого получения.
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet && nginx -s reload -c /etc/nginx/nginx.conf; sleep 12h & wait $${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
     networks:
       - draganddrop_network
     depends_on: # Certbot зависит от nginx для webroot
