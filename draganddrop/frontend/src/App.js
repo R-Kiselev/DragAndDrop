@@ -16,9 +16,9 @@ function App() {
   const appRef = useRef(null);
 
   // Используем переменную окружения для URL API, с запасным значением для локальной разработки
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const API_URL = process.env.REACT_APP_API_URL;
 
-  const handleFiles = async (files) => {
+    const handleFiles = async (files) => {
     if (files.length === 0) return;
     setLoading(true);
     setResponseData([]);
@@ -32,25 +32,53 @@ function App() {
       const response = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setResponseData(response.data.files); // Бэкенд теперь возвращает { files: [...] }
+      setResponseData(response.data.files);
     } catch (err) {
-      console.error('Error uploading files:', err);
-      if (err.response && err.response.data) {
-        // НОВАЯ ЛОГИКА: FastAPI теперь возвращает detail как строку
-        if (typeof err.response.data.detail === 'string') {
-          setError(err.response.data.detail);
-        } else if (err.response.data.msg) { // Запасной вариант, если вдруг старый формат где-то остался
-          setError(`Error: ${err.response.data.error_type || 'UnknownError'} - ${err.response.data.msg}`);
-        } else {
-          // Если detail не строка, пытаемся показать как есть или общую ошибку
-          setError(JSON.stringify(err.response.data) || 'An error occurred on the server.');
+      console.error('Error uploading files:', err); // Всегда логируем исходную ошибку
+
+      let errorMessage = 'An unexpected error occurred.'; // Сообщение по умолчанию
+
+      if (err) { // Убедимся, что сам объект err существует
+        if (err.response) {
+          // Есть ответ от сервера (например, 4xx, 5xx ошибки)
+          if (err.response.data) {
+            if (typeof err.response.data.detail === 'string') {
+              errorMessage = err.response.data.detail;
+            } else if (typeof err.response.data.msg === 'string') { // Добавил проверку типа для msg
+              errorMessage = `Error: ${err.response.data.error_type || 'UnknownError'} - ${err.response.data.msg}`;
+            } else if (typeof err.response.data === 'string') { // Если err.response.data - это просто строка
+                errorMessage = err.response.data;
+            } else {
+              // Если detail или msg не строка, пытаемся показать как есть
+              try {
+                errorMessage = JSON.stringify(err.response.data);
+              } catch (e) {
+                errorMessage = 'Server returned an unreadable error response.';
+              }
+            }
+          } else {
+            // Ответ есть, но нет err.response.data (нетипично, но возможно)
+            errorMessage = `Server error: ${err.response.status} - ${err.response.statusText || 'No details'}`;
+          }
+        } else if (err.request) {
+          // Запрос был сделан, но ответ не получен (сетевая ошибка, CORS)
+          errorMessage = 'Could not connect to the server. Please check your network or if the server is running.';
+          // Дополнительно можно проверить err.message для более специфичных сетевых ошибок
+          if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes('network error')) {
+             // Это может быть из-за CORS или реальной сетевой проблемы
+             errorMessage += ' This might be a CORS issue or a network connectivity problem.';
+          }
+        } else if (err.message && typeof err.message === 'string') {
+          // Другие ошибки Axios или JavaScript (например, ошибка при настройке запроса)
+          errorMessage = err.message;
         }
-      } else if (err.request) {
-        setError('Could not connect to the server. Please try again later.');
       } else {
-        setError('An unexpected error occurred during the request setup.');
+        // Сам объект err равен null или undefined (очень редкий случай)
+        errorMessage = 'An unknown error occurred (no error object).';
       }
-      setResponseData([]);
+
+      setError(errorMessage);
+      setResponseData([]); // Очищаем предыдущие данные
     } finally {
       setLoading(false);
     }
