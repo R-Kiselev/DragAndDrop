@@ -7,7 +7,7 @@ import './App.css';
 
 function App() {
   const [responseData, setResponseData] = useState([]);
-  const [error, setError] = useState(null); // Может быть строкой или объектом ошибки
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copyState, setCopyState] = useState('idle');
   const [appAlignedTop, setAppAlignedTop] = useState(false);
@@ -15,10 +15,9 @@ function App() {
 
   const appRef = useRef(null);
 
-  // Используем переменную окружения для URL API, с запасным значением для локальной разработки
   const API_URL = process.env.REACT_APP_API_URL;
 
-    const handleFiles = async (files) => {
+  const handleFiles = async (files) => {
     if (files.length === 0) return;
     setLoading(true);
     setResponseData([]);
@@ -34,22 +33,20 @@ function App() {
       });
       setResponseData(response.data.files);
     } catch (err) {
-      console.error('Error uploading files:', err); // Всегда логируем исходную ошибку
+      console.error('Error uploading files:', err);
 
-      let errorMessage = 'An unexpected error occurred.'; // Сообщение по умолчанию
+      let errorMessage = 'An unexpected error occurred.';
 
-      if (err) { // Убедимся, что сам объект err существует
+      if (err) {
         if (err.response) {
-          // Есть ответ от сервера (например, 4xx, 5xx ошибки)
           if (err.response.data) {
             if (typeof err.response.data.detail === 'string') {
               errorMessage = err.response.data.detail;
-            } else if (typeof err.response.data.msg === 'string') { // Добавил проверку типа для msg
+            } else if (typeof err.response.data.msg === 'string') {
               errorMessage = `Error: ${err.response.data.error_type || 'UnknownError'} - ${err.response.data.msg}`;
-            } else if (typeof err.response.data === 'string') { // Если err.response.data - это просто строка
+            } else if (typeof err.response.data === 'string') {
                 errorMessage = err.response.data;
             } else {
-              // Если detail или msg не строка, пытаемся показать как есть
               try {
                 errorMessage = JSON.stringify(err.response.data);
               } catch (e) {
@@ -57,28 +54,22 @@ function App() {
               }
             }
           } else {
-            // Ответ есть, но нет err.response.data (нетипично, но возможно)
             errorMessage = `Server error: ${err.response.status} - ${err.response.statusText || 'No details'}`;
           }
         } else if (err.request) {
-          // Запрос был сделан, но ответ не получен (сетевая ошибка, CORS)
           errorMessage = 'Could not connect to the server. Please check your network or if the server is running.';
-          // Дополнительно можно проверить err.message для более специфичных сетевых ошибок
           if (err.message && typeof err.message === 'string' && err.message.toLowerCase().includes('network error')) {
-             // Это может быть из-за CORS или реальной сетевой проблемы
              errorMessage += ' This might be a CORS issue or a network connectivity problem.';
           }
         } else if (err.message && typeof err.message === 'string') {
-          // Другие ошибки Axios или JavaScript (например, ошибка при настройке запроса)
           errorMessage = err.message;
         }
       } else {
-        // Сам объект err равен null или undefined (очень редкий случай)
         errorMessage = 'An unknown error occurred (no error object).';
       }
 
       setError(errorMessage);
-      setResponseData([]); // Очищаем предыдущие данные
+      setResponseData([]);
     } finally {
       setLoading(false);
     }
@@ -87,12 +78,6 @@ function App() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleFiles,
     noClick: false,
-    // Можно добавить обработку типов файлов здесь, если нужно ограничить на клиенте
-    // accept: {
-    //   'text/*': ['.txt', '.md', '.json', '.xml', '.html', '.css', '.js', '.py'],
-    //   'image/png': ['.png'],
-    //   'image/jpeg': ['.jpg', '.jpeg'],
-    // }
   });
 
   useEffect(() => {
@@ -110,32 +95,30 @@ function App() {
   useEffect(() => {
     const pasteHandler = (event) => {
       const items = event.clipboardData.items;
-      const files = [];
+      const filesToUpload = []; // Используем новое имя переменной, чтобы избежать конфликта
       for (let i = 0; i < items.length; i++) {
         if (items[i].kind === 'file') {
           const file = items[i].getAsFile();
-          if (file) files.push(file);
+          if (file) filesToUpload.push(file);
         }
       }
-      if (files.length > 0) handleFiles(files);
+      if (filesToUpload.length > 0) handleFiles(filesToUpload);
     };
     window.addEventListener('paste', pasteHandler);
     return () => window.removeEventListener('paste', pasteHandler);
-  }, []);
+  }, [handleFiles]); // Добавляем handleFiles в массив зависимостей
 
   const copyToClipboard = () => {
     if (copyState === 'copying') return;
 
-    // Шаг 1: Проверяем доступность Clipboard API
     if (!navigator.clipboard) {
-      const errorMessage = 'Clipboard API (navigator.clipboard) is not available.';
-      console.error(errorMessage, 'Is the page served over HTTPS or on localhost? Current context secure:', window.isSecureContext);
-      setError(errorMessage + (window.isSecureContext ? ' Context is secure, but API still unavailable.' : ' Context is NOT secure (requires HTTPS or localhost).'));
-      // Не устанавливаем 'copying', так как операция не начнется
+      const errorMessageText = 'Clipboard API (navigator.clipboard) is not available.';
+      console.error(errorMessageText, 'Is the page served over HTTPS or on localhost? Current context secure:', window.isSecureContext);
+      setError(errorMessageText + (window.isSecureContext ? ' Context is secure, but API still unavailable.' : ' Context is NOT secure (requires HTTPS or localhost).'));
       return;
     }
 
-    setCopyState('copying'); // Устанавливаем состояние "копирование" только если API доступен
+    setCopyState('copying');
 
     const textToCopy = responseData
       .filter(file => !file.is_binary && file.content)
@@ -148,23 +131,21 @@ function App() {
       return;
     }
 
-    // Шаг 2: Используем Clipboard API
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
         setCopyState('success');
         setTimeout(() => setCopyState('idle'), 2000);
       })
-      .catch((err) => {
-        // Эта ошибка возникнет, если writeText не удался (например, из-за разрешений, хотя для writeText это редкость)
-        const detailedErrorMessage = `Failed to copy content to clipboard. Error: ${err.name} - ${err.message}`;
-        console.error('Error using navigator.clipboard.writeText:', err);
-        setError(detailedErrorMessage);
+      .catch((clipboardErr) => { // Используем другое имя для ошибки
+        const detailedErrorMessageText = `Failed to copy content to clipboard. Error: ${clipboardErr.name} - ${clipboardErr.message}`;
+        console.error('Error using navigator.clipboard.writeText:', clipboardErr);
+        setError(detailedErrorMessageText);
         setCopyState('idle');
       });
   };
 
-  const getLanguage = (filename, contentType) => { // Добавили contentType
-    if (contentType && contentType.startsWith("image/")) return 'text'; // Для изображений не подсвечиваем код
+  const getLanguage = (filename, contentType) => {
+    if (contentType && contentType.startsWith("image/")) return 'text';
     if (contentType && contentType.startsWith("application/pdf")) return 'text';
 
     const extension = filename.split('.').pop()?.toLowerCase();
@@ -191,10 +172,8 @@ function App() {
       case 'txt': return 'text';
       case 'asm': return 'nasm';
       default:
-        // Попытка угадать по content_type, если расширение неизвестно
         if (contentType === "application/json") return "json";
         if (contentType === "application/xml") return "xml";
-        // ... другие типы
         return 'text';
     }
   };
@@ -219,7 +198,11 @@ function App() {
     <div ref={appRef} className={`App ${appAlignedTop ? 'has-results-active' : ''}`}>
       <div className="container">
         <div className={`upload-section ${showStatusOrResults ? 'has-results' : ''}`}>
-          <h1>Drag&Drop</h1>
+          <h1>Text Extractor</h1> {/* ИЗМЕНЕННЫЙ ЗАГОЛОВОК */}
+          <p className="app-description"> {/* ДОБАВЛЕННОЕ ОПИСАНИЕ */}
+            Easily extract text from multiple files. Drag & drop or select your files,
+            and get the content displayed in a convenient, readable format.
+          </p>
           <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
             <input {...getInputProps()} />
             {isDragActive ? <p>Drop the files here...</p> : <p>Drag 'n' drop files here, or click to select files</p>}
@@ -230,7 +213,6 @@ function App() {
         {showStatusOrResults && (
           <div className="results-block">
             {loading && <p className="loading">Processing files...</p>}
-            {/* Отображаем ошибку более явно */}
             {error && <p className="error-message">{typeof error === 'string' ? error : JSON.stringify(error)}</p>}
 
             {responseData.length > 0 && (
@@ -244,7 +226,6 @@ function App() {
                 <div className="file-list">
                   {responseData.map((file, index) => (
                     <div key={index} className="file-item">
-                      {/* ИЗМЕНЕННАЯ СТРОКА */}
                       <h3 className="file-name">{file.filename} <span className="file-type">{file.content_type}</span></h3>
                       {file.is_binary ? (
                         <p className="binary-file-notice">
