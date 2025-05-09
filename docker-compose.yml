@@ -1,34 +1,60 @@
+version: '3.8'
+
 services:
   backend:
-    build: 
+    build:
       context: ./draganddrop/backend
       dockerfile: Dockerfile
-    ports:
-      - "8010:8000"
-    container_name: backend
-    # entrypoint: ['bash', entrypoint.sh]
+    container_name: draganddrop_backend_app # Изменил имя для ясности
     networks:
       - draganddrop_network
-  
+    restart: unless-stopped
+
   frontend:
-    build: 
+    build:
       context: ./draganddrop/frontend
       dockerfile: Dockerfile
       args:
-        REACT_APP_API_URL: ${REACT_APP_API_URL}
-    ports:
-      - "3000:3000"
-    container_name: frontend
+        REACT_APP_API_URL: ${REACT_APP_API_URL} # Возьмет из .env файла фронтенда
+    container_name: draganddrop_frontend_app # Изменил имя для ясности
     networks:
       - draganddrop_network
-    env_file:
-      - .env
-    # depends_on:
-    #   - backend
+    env_file: # Этот env_file используется для передачи args в build, а не для переменных окружения в контейнере фронтенда (хотя может и для них, если они там нужны)
+      - .env # Явно указываем путь к .env файлу
+    depends_on:
+      - backend
+    restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: draganddrop_nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl/letsencrypt:/etc/letsencrypt:rw
+      - ./nginx/ssl/certbot_www:/var/www/certbot:rw
+    networks:
+      - draganddrop_network
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: draganddrop_certbot_service
+    volumes:
+      - ./nginx/ssl/letsencrypt:/etc/letsencrypt:rw
+      - ./nginx/ssl/certbot_www:/var/www/certbot:rw
+    # Команда для автоматического обновления. Запускать вручную для первого получения.
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet && nginx -s reload -c /etc/nginx/nginx.conf; sleep 12h & wait $${!}; done;'"
+    networks:
+      - draganddrop_network
+    depends_on: # Certbot зависит от nginx для webroot
+      - nginx
 
 networks:
   draganddrop_network:
     driver: bridge
-    
-    
