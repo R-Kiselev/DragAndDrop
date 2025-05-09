@@ -37,9 +37,9 @@ services:
       - ./nginx/ssl/certbot_www:/var/www/certbot:rw
     networks:
       - draganddrop_network
-    depends_on:
-      - frontend
-      - backend
+    # depends_on:
+    #   - frontend
+    #   - backend
     restart: unless-stopped
 
   certbot:
