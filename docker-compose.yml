@@ -40,9 +40,3 @@ services:
 networks:
   draganddrop_network:
     driver: bridge
-
-# docker compose run --rm --service-ports certbot \
-#     certonly --webroot --webroot-path /var/www/certbot \
-#     -d 195.238.126.138 \
-#     --email sputnavik@gmail.com --agree-tos --no-eff-email \
-#     --staging
