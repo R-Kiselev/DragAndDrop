@@ -125,9 +125,20 @@ function App() {
 
   const copyToClipboard = () => {
     if (copyState === 'copying') return;
-    setCopyState('copying');
+
+    // Шаг 1: Проверяем доступность Clipboard API
+    if (!navigator.clipboard) {
+      const errorMessage = 'Clipboard API (navigator.clipboard) is not available.';
+      console.error(errorMessage, 'Is the page served over HTTPS or on localhost? Current context secure:', window.isSecureContext);
+      setError(errorMessage + (window.isSecureContext ? ' Context is secure, but API still unavailable.' : ' Context is NOT secure (requires HTTPS or localhost).'));
+      // Не устанавливаем 'copying', так как операция не начнется
+      return;
+    }
+
+    setCopyState('copying'); // Устанавливаем состояние "копирование" только если API доступен
+
     const textToCopy = responseData
-      .filter(file => !file.is_binary && file.content) // Копируем только текстовые файлы с содержимым
+      .filter(file => !file.is_binary && file.content)
       .map((file) => `${file.filename}\n\n${file.content}`)
       .join('\n\n');
 
@@ -137,13 +148,17 @@ function App() {
       return;
     }
 
+    // Шаг 2: Используем Clipboard API
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
         setCopyState('success');
         setTimeout(() => setCopyState('idle'), 2000);
       })
       .catch((err) => {
-        setError('Failed to copy content to clipboard.');
+        // Эта ошибка возникнет, если writeText не удался (например, из-за разрешений, хотя для writeText это редкость)
+        const detailedErrorMessage = `Failed to copy content to clipboard. Error: ${err.name} - ${err.message}`;
+        console.error('Error using navigator.clipboard.writeText:', err);
+        setError(detailedErrorMessage);
         setCopyState('idle');
       });
   };
