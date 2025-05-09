@@ -5,6 +5,8 @@ services:
       context: ./draganddrop/backend
       dockerfile: Dockerfile
     container_name: draganddrop_backend_app
+    env_file:
+      - .env
     networks:
       - draganddrop_network
     restart: unless-stopped

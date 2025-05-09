@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from python_dotenv import load_dotenv
+from dotenv import load_dotenv
 
 from .api.router import files
 from .api.exceptions import (
