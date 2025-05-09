@@ -35,8 +35,14 @@ async def upload_files(files: list[UploadFile]):
                     }
                 )
         except RuntimeError:
-            raise BadRequestError(
-                detail=f"File {file.filename} is too large to process."
+            # raise BadRequestError(
+            #     detail=f"File {file.filename} is too large to process."
+            # )
+            failed_result.append(
+                {
+                    "filename": file.filename,
+                    "content": "File is too large to process."
+                }
             )
         except ValueError:
             raise BadRequestError(
