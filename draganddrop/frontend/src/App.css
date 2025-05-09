@@ -1,23 +1,20 @@
 /* Darker, more minimalistic palette */
 :root {
-  --background-dark: #0a0a0a;
-  --block-background: #1a1a1a;
-  --accent-color-subtle: #3a3a3a;
-  --accent-color-button: #4CAF50;
-  --text-color: #e0e0e0;
-  --error-color: #ff6666;
-  --code-background: #2b2b2b;
-  --file-item-background: #252525;
-  --block-padding: 30px;
-  --block-padding-narrow: 20px;
-  --block-gap: 35px;
-  --upload-max-width: 680px;
-  --results-max-width: 1100px;
-  --super-smooth-duration: 0.8s;
-  --super-smooth-easing: cubic-bezier(0.4, 0, 0.2, 1);
-  --logo-background-color: #ffffff; /* Белый фон для лого */
-  --logo-size: 80px; /* Размер логотипа (высота и ширина) */
-  --logo-padding: 10px; /* Отступы внутри белого фона вокруг SVG */
+  --background-dark: #0a0a0a; /* Almost black - THIS IS THE GAP BACKGROUND */
+  --block-background: #1a1a1a; /* Background for EACH distinct block */
+  --accent-color-subtle: #3a3a3a; /* Dark grey for borders/subtle accents */
+  --accent-color-button: #4CAF50; /* Green for success button */
+  --text-color: #e0e0e0; /* Light grey for readability */
+  --error-color: #ff6666; /* Error red */
+  --code-background: #2b2b2b; /* Background for code blocks */
+  --file-item-background: #252525; /* Background for file items */
+  --block-padding: 30px; /* Padding INSIDE each distinct block */
+  --block-padding-narrow: 20px; /* Reduced padding for upload section after results */
+  --block-gap: 35px; /* Slightly increased gap */
+  --upload-max-width: 680px; /* Slightly narrower upload for more contrast */
+  --results-max-width: 1100px; /* WIDER results block */
+  --super-smooth-duration: 0.8s; /* EVEN SMOOTHER base duration */
+  --super-smooth-easing: cubic-bezier(0.4, 0, 0.2, 1); /* Common "material design" easing */
 }
 
 
@@ -39,8 +36,8 @@ body {
   font-family: 'Roboto', sans-serif;
   line-height: 1.6;
   box-sizing: border-box;
-  overflow-y: auto;
-  position: relative;
+  overflow-y: auto; /* Keep this for page scroll */
+  position: relative; /* For positioning scroll-to-top relative to App */
   transition: align-items var(--super-smooth-duration) var(--super-smooth-easing);
 }
 
@@ -61,8 +58,8 @@ body {
 .results-block {
   background-color: var(--block-background);
   padding: var(--block-padding);
-  border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+  border-radius: 14px; /* Slightly more rounded */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65); /* More pronounced shadow */
   width: 100%;
   margin: 0;
   box-sizing: border-box;
@@ -76,60 +73,20 @@ body {
               padding var(--super-smooth-duration) var(--super-smooth-easing);
 }
 
-/* --- ИЗМЕНЕНИЯ ДЛЯ ЛОГОТИПА --- */
-.logo-container {
-  display: inline-block; /* Чтобы background не растягивался на всю ширину */
-  background-color: var(--logo-background-color);
-  padding: var(--logo-padding); /* Отступы вокруг SVG внутри белого фона */
-  border-radius: 12px; /* Скругление для фона логотипа, можно сделать круглым: border-radius: 50%; */
-  margin-bottom: 25px; /* Отступ снизу перед заголовком */
-  line-height: 0; /* Убираем лишнюю высоту строки, если SVG как inline-block */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Небольшая тень для фона логотипа */
-}
-
-.app-logo {
-  height: var(--logo-size);
-  width: var(--logo-size);
-  display: block; /* Чтобы SVG занимал всю область внутри .logo-container (с учетом padding) */
-  /* Если твой SVG черный и ты хочешь изменить его цвет на другой (например, темно-серый, чтобы он был виден на белом фоне): */
-  /* fill: #333333; */
-  /* Если SVG УЖЕ имеет нужный цвет (например, черный), то fill не нужен */
-}
-/* --- КОНЕЦ ИЗМЕНЕНИЙ ДЛЯ ЛОГОТИПА --- */
-
-
 .upload-section.has-results {
     padding-top: var(--block-padding-narrow);
     padding-bottom: var(--block-padding-narrow);
 }
 .upload-section.has-results h1 {
     font-size: 2.1rem;
-    margin-bottom: 10px;
-    margin-top: 15px; /* Добавим отступ сверху, если лого стал меньше */
+    margin-bottom: 10px; /* ИЗМЕНЕНО */
     transition: font-size var(--super-smooth-duration) var(--super-smooth-easing),
-                margin-top var(--super-smooth-duration) var(--super-smooth-easing),
                 margin-bottom var(--super-smooth-duration) var(--super-smooth-easing);
 }
-.upload-section.has-results .logo-container {
-    margin-bottom: 20px; /* Чуть меньше отступ для компактности */
-    /* Можно уменьшить размер лого и фона при появлении результатов */
-    /* transform: scale(0.8); */
-    /* transition: transform var(--super-smooth-duration) var(--super-smooth-easing), margin-bottom var(--super-smooth-duration) var(--super-smooth-easing); */
-}
-/* Можно также уменьшить размер SVG и padding для фона */
-/*
-.upload-section.has-results .logo-container {
-    padding: calc(var(--logo-padding) * 0.8);
-}
-.upload-section.has-results .app-logo {
-    height: calc(var(--logo-size) * 0.8);
-    width: calc(var(--logo-size) * 0.8);
-}
-*/
-
+/* СТИЛИ ДЛЯ ОПИСАНИЯ ПРИЛОЖЕНИЯ - В СОСТОЯНИИ HAS-RESULTS */
 .upload-section.has-results .app-description {
     font-size: 1rem;
-    margin-bottom: 18px;
+    margin-bottom: 18px; /* ИЗМЕНЕНО */
     transition: font-size var(--super-smooth-duration) var(--super-smooth-easing),
                 margin-bottom var(--super-smooth-duration) var(--super-smooth-easing);
 }
@@ -151,14 +108,15 @@ body {
 
 h1 {
   font-size: 2.8rem;
-  margin-top: 0; /* Убрали верхний отступ, так как логотип теперь имеет свой отступ через .logo-container */
-  margin-bottom: 15px;
+  margin-top: 0;
+  margin-bottom: 15px; /* ИЗМЕНЕНО */
   color: var(--text-color);
   font-weight: 700;
   transition: font-size var(--super-smooth-duration) var(--super-smooth-easing),
               margin-bottom var(--super-smooth-duration) var(--super-smooth-easing);
 }
 
+/* СТИЛИ ДЛЯ ОПИСАНИЯ ПРИЛОЖЕНИЯ */
 .app-description {
   font-size: 1.1rem;
   color: #b0b0b0;
@@ -475,8 +433,6 @@ button:disabled {
     --block-gap: 20px;
     --upload-max-width: 100%;
     --results-max-width: 100%;
-    --logo-size: 60px; /* Уменьшаем лого для мобильных */
-    --logo-padding: 8px;
   }
 
 
@@ -486,25 +442,17 @@ button:disabled {
 
   h1 {
     font-size: 2.2rem;
-    margin-bottom: 10px;
+    margin-bottom: 10px; /* ИЗМЕНЕНО */
   }
   .upload-section.has-results h1 {
     font-size: 1.8rem;
-    margin-bottom: 8px;
-    margin-top: 10px; /* Отступ от лого при has-results */
+    margin-bottom: 8px; /* ИЗМЕНЕНО */
   }
-  .logo-container { /* Уменьшаем отступ для мобильных */
-      margin-bottom: 20px;
-  }
-  .upload-section.has-results .logo-container {
-      margin-bottom: 15px;
-  }
-
-  .app-description {
+  .app-description { /* ИЗМЕНЕНО */
     font-size: 1rem;
     margin-bottom: 20px;
   }
-  .upload-section.has-results .app-description {
+  .upload-section.has-results .app-description { /* ИЗМЕНЕНО */
     font-size: 0.9rem;
     margin-bottom: 15px;
   }
@@ -572,29 +520,17 @@ button:disabled {
 @media (max-width: 480px) {
      h1 {
         font-size: 1.8rem;
-        margin-bottom: 8px;
+        margin-bottom: 8px; /* ИЗМЕНЕНО */
      }
     .upload-section.has-results h1 {
         font-size: 1.5rem;
-        margin-bottom: 5px;
-        margin-top: 8px; /* Отступ от лого при has-results */
+        margin-bottom: 5px; /* ИЗМЕНЕНО */
     }
-     :root {
-        --logo-size: 50px; /* Еще уменьшаем лого */
-        --logo-padding: 6px;
-    }
-    .logo-container { /* Уменьшаем отступ для мобильных */
-        margin-bottom: 15px;
-    }
-    .upload-section.has-results .logo-container {
-        margin-bottom: 10px;
-    }
-
-    .app-description {
+    .app-description { /* ИЗМЕНЕНО */
       font-size: 0.9rem;
       margin-bottom: 15px;
     }
-    .upload-section.has-results .app-description {
+    .upload-section.has-results .app-description { /* ИЗМЕНЕНО */
       font-size: 0.85rem;
       margin-bottom: 12px;
     }
