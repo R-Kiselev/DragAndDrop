@@ -1,4 +1,5 @@
 services:
+  # ... backend и frontend остаются без изменений ...
   backend:
     build:
       context: ./draganddrop/backend
@@ -27,9 +28,12 @@ services:
     image: nginx:latest
     container_name: draganddrop_nginx_proxy
     ports:
-      - "80:80" # Прокидываем только порт 80
+      - "80:80"
+      - "443:443" # <--- Добавляем порт 443
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt # <--- Пробрасываем конфигурацию Certbot
+      - ./certbot/www:/var/www/certbot   # <--- Пробрасываем директорию для challenge
     networks:
       - draganddrop_network
     depends_on:
